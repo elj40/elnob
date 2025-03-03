@@ -9,7 +9,6 @@
 // NOTE, we get away with wait(NULL) because we make sure that we do not fork
 // more than once, a more secure function would be better
 
-;
 int main()
 {
 	struct stat code_stat;
@@ -27,20 +26,6 @@ int main()
 
 		const char * rerun[] = {"./elnob.out", NULL};
 		run_command(1,  rerun);
-		/*
-		pid = fork();
-		if (pid == 0)
-		{
-			int r = execlp("gcc", "gcc", "-o","elnob.out",
-					"elnob.c", NULL);
-			printf("%d\n", r);
-			return r;
-		}
-		wait(NULL);
-		printf("Rerunning elnob\n");
-		int r = execlp("./elnob.out", "./elnob.out", NULL);
-		printf("%d\n", r);
-		*/
 		return 0;
 	}
 	const char * cmd[] = {"ls", "-a", NULL};
