@@ -1,23 +1,49 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <sys/wait.h> 
+#include <sys/stat.h>
+#include <time.h>
 
+#define ELNOB_IMPLEMENTATION
+#include "elnob.h"
+
+// NOTE, we get away with wait(NULL) because we make sure that we do not fork
+// more than once, a more secure function would be better
+
+;
 int main()
 {
-	printf("Hello Elnob\n");
-	pid_t pid = fork();
+	struct stat code_stat;
+	struct stat exec_stat;
+	stat("elnob.c", &code_stat);
+	stat("elnob.out", &exec_stat);
 
-	if (pid == 0)
+	pid_t pid;
+
+	if (code_stat.st_mtime > exec_stat.st_mtime)
 	{
-		int result = execlp("gcc", "gcc", "-Wall", "-Wextra", "-o", "elnob", "elnob.c", NULL);
-		if (result < 0) { printf("Failed to run command\n"); return 1; }
+		printf("elnob.c edited, need to recompile\n");
+		const char * compile[] = {"gcc", "-o", "elnob.out", "elnob.c", NULL};
+		run_command(4, compile);
+
+		const char * rerun[] = {"./elnob.out", NULL};
+		run_command(1,  rerun);
+		/*
+		pid = fork();
+		if (pid == 0)
+		{
+			int r = execlp("gcc", "gcc", "-o","elnob.out",
+					"elnob.c", NULL);
+			printf("%d\n", r);
+			return r;
+		}
+		wait(NULL);
+		printf("Rerunning elnob\n");
+		int r = execlp("./elnob.out", "./elnob.out", NULL);
+		printf("%d\n", r);
+		*/
 		return 0;
-	} else
-	{
-		wait(NULL);2
-		printf("I want this to run as well\n");
 	}
-
+	const char * cmd[] = {"ls", "-a", NULL};
+	run_command(2, cmd);
 	return 0;
 }
