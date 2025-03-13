@@ -1,9 +1,8 @@
 #ifndef _ELNOB_H_
 #define _ELNOB_H_
 
-
-
-void run_command(int argc, const char * argv[]);
+#define ELNOB_ARRAY_SIZE(a) sizeof((a))/sizeof((a)[0])
+int run_command_sync(int argc, const char * argv[]);
 
 #ifdef ELNOB_IMPLEMENTATION
 #include <stdio.h>
@@ -11,15 +10,16 @@ void run_command(int argc, const char * argv[]);
 #include <unistd.h>
 #include <sys/wait.h> 
 
-void run_command(int argc, const char * argv[])
+// argc includes the NULL at the end
+int run_command_sync(int argc, const char * argv[])
 {
 	if (argc <= 0) {
 		printf("Command must have at least one argument\n");
-		return;
+		return 0;
 	}
-	if (argv[argc] != NULL) {
+	if (argv[argc-1] != NULL) {
 		printf("Command %s must be terminated by NULL\n", argv[0]);
-		return;
+		return 0;
 	}
 	pid_t pid = fork();
 
@@ -27,9 +27,23 @@ void run_command(int argc, const char * argv[])
 	{
 		printf("Running custom command: %s\n", argv[0]);
 		int r = execvp(argv[0], (char * const *) argv);
-		if (r < 0) printf("Failed to run command: %s\n", argv[0]);
+		if (r < 0) {
+            printf("Failed to run command: %s\n", argv[0]);
+            exit(EXIT_FAILURE);
+        }
+        exit(EXIT_SUCCESS);
 	}
-	wait(NULL);
+
+    int exit_status = 0;
+	wait(&exit_status);
+
+    //printf("exit_status: %d %d\n", exit_status, WEXITSTATUS(exit_status));
+    if (WEXITSTATUS(exit_status) != 0)
+    {
+        printf("ERROR: failed to run command: %s, exiting\n", argv[0]);
+        return 0;
+    }
+    return 1;
 }
 #endif // ELNOB_IMPLEMENTATION
 #endif // _ELNOB_H_
