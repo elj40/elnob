@@ -1,3 +1,3 @@
 set -x
-gcc -Wall -Wextra -o elnob elnob.c
-./elnob
+gcc -Wall -Wextra -g -o elnob.out elnob.c
+./elnob.out
