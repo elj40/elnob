@@ -6,29 +6,15 @@
 #define ELNOB_IMPLEMENTATION
 #include "elnob.h"
 
-// NOTE, we get away with wait(NULL) because we make sure that we do not fork
-// more than once, a more secure function would be better
-
-int main()
+int main(int argc, char * argv[])
 {
-	struct stat code_stat;
-	struct stat exec_stat;
-	stat("elnob.c", &code_stat);
-	stat("elnob.out", &exec_stat);
+    if (!elnob_rebuild_elnob(argc, argv)) return 1;
 
-	pid_t pid;
+    Command cmd = {0};
+    elnob_da_append(&cmd, "ls");
+    elnob_da_append(&cmd, "-a");
 
-	if (code_stat.st_mtime > exec_stat.st_mtime)
-	{
-		printf("elnob.c edited, need to recompile\n");
-		const char * compile[] = {"gcc", "-o", "elnob.out", "elnob.c", NULL};
-		run_command(4, compile);
-
-		const char * rerun[] = {"./elnob.out", NULL};
-		run_command(1,  rerun);
-		return 0;
-	}
-	const char * cmd[] = {"ls", "-a", NULL};
-	run_command(2, cmd);
+    elnob_run_msg();
+	elnob_run_command_sync(cmd);
 	return 0;
 }
