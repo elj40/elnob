@@ -10,7 +10,7 @@ typedef struct {
 } Command;
 
 int run_command_sync(int argc, const char * argv[]);
-int elnob_rebuild_elnob(int argc, char * argv[]);
+int elnob_rebuild_elnob(int argc, const char * argv[]);
 void elnob_print_command(Command cmd);
 
 #ifndef ELNOB_QUIET
@@ -58,7 +58,7 @@ void elnob_cmd_append_many_func(Command * cmd, ...)
     };
 };
 
-int elnob_rebuild_elnob(int argc, char * argv[])
+int elnob_rebuild_elnob(int argc, const char * argv[])
 {
     if (argc <= 0) return 0;
     //TODO: make all the rebuild yourself into macr or function
