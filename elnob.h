@@ -81,11 +81,11 @@ int elnob_rebuild_elnob(int argc, const char * argv[])
     {
         elnob_recompile_msg();
         const char * compile[] = {"cc", "-g", "-o", exec_name, "elnob.c", NULL};
-        if (!run_command_sync(ELNOB_ARRAY_SIZE(compile), compile)) exit(EXIT_FAILURE);
+        if (!run_command_sync(ELNOB_ARRAY_SIZE(compile), compile)) return 0;
 
         const char * rerun[] = { exec_name ,NULL};
-        if (!run_command_sync(ELNOB_ARRAY_SIZE(rerun), rerun)) exit(EXIT_FAILURE);
-
+        if (!run_command_sync(ELNOB_ARRAY_SIZE(rerun), rerun)) return 0;
+        exit(EXIT_SUCCESS);
     }
     return 1;
 }

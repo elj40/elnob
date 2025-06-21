@@ -6,7 +6,7 @@
 #define ELNOB_IMPLEMENTATION
 #include "elnob.h"
 
-int main(int argc, char * argv[])
+int main(int argc, const char * argv[])
 {
     if (!elnob_rebuild_elnob(argc, argv)) return 1;
 
