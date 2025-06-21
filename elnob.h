@@ -10,12 +10,12 @@ typedef struct {
 } Command;
 
 int run_command_sync(int argc, const char * argv[]);
-int elnob_rebuild_elnob(int argc, char * argv[]);
+int elnob_rebuild_elnob(int argc, const char * argv[]);
 void elnob_print_command(Command cmd);
 
 #ifndef ELNOB_QUIET
     #define elnob_recompile_msg() printf("========================= ELNOB RECOMPILE ============================\n");
-    #define elnob_run_msg()       printf("========================= ELNOB RUN       ============================\n");
+    #define elnob_run_msg()       printf("========================= ELNOB RUN ==================================\n");
 #else
     #define elnob_recompile_msg()
     #define elnob_run_msg()
@@ -25,12 +25,11 @@ void elnob_print_command(Command cmd);
 #ifdef ELNOB_IMPLEMENTATION
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include <sys/wait.h> 
 #include <sys/stat.h>
 #include <assert.h>
-
-
 
 #define ELNOB_DEFAULT_DA_CAPACITY 5
 #define elnob_da_append(da, item) \
@@ -46,7 +45,20 @@ void elnob_print_command(Command cmd);
         (da)->count++; \
     } while(0);
 
-int elnob_rebuild_elnob(int argc, char * argv[])
+#define elnob_cmd_append(cmd, item) elnob_da_append((cmd), (item))
+#define elnob_cmd_append_many(cmd, ...) elnob_cmd_append_many_func((cmd), __VA_ARGS__, NULL)
+void elnob_cmd_append_many_func(Command * cmd, ...)
+{
+    char * item = NULL;
+    va_list vargs;
+    va_start(vargs, cmd);
+    while ((item = va_arg(vargs, char *)))
+    {
+        elnob_cmd_append(cmd, item);
+    };
+};
+
+int elnob_rebuild_elnob(int argc, const char * argv[])
 {
     if (argc <= 0) return 0;
     //TODO: make all the rebuild yourself into macr or function
@@ -133,7 +145,7 @@ int run_command_sync(int argc, const char * argv[])
 
 	if (pid == 0)
 	{
-		printf("Running custom command: %s\n", argv[0]);
+		printf("Running command: %s...\n", argv[0]);
 		int r = execvp(argv[0], (char * const *) argv);
 		if (r < 0) {
             printf("Failed to run command: %s\n", argv[0]);
